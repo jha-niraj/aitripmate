@@ -35,6 +35,21 @@ export function HotelsList({ destination }: HotelsListProps) {
     const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
     const [showFilters, setShowFilters] = useState(false)
 
+    const hotelImages = [
+        "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80",
+        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
+        "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80",
+        "https://images.unsplash.com/photo-1455587734955-081b22074882?w=800&q=80",
+        "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?w=800&q=80",
+        "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80",
+        "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&q=80",
+        "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80",
+        "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800&q=80",
+        "https://images.unsplash.com/photo-1562778612-e1e0cda9915c?w=800&q=80",
+        "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=800&q=80",
+        "https://images.unsplash.com/photo-1607513746994-51f730a44832?w=800&q=80",
+    ]
+
     // Generate hotels based on destination
     const generateHotels = (dest: string): Hotel[] => {
         const hotelTypes = ["Luxury Hotel", "Budget Hotel", "Resort", "Boutique Hotel", "Homestay"]
@@ -49,7 +64,7 @@ export function HotelsList({ destination }: HotelsListProps) {
             return {
                 id: `hotel-${dest.toLowerCase()}-${i + 1}`,
                 name: `${type === "Homestay" ? "Cozy" : type === "Luxury Hotel" ? "Grand" : type === "Resort" ? "Serene" : "Comfort"} ${dest} ${type === "Homestay" ? "Stay" : type === "Budget Hotel" ? "Inn" : "Hotel"} ${i + 1}`,
-                image: `/placeholder.svg?height=300&width=500&text=Hotel+${i + 1}`,
+                image: hotelImages[i % hotelImages.length],
                 description: `Experience the best of ${dest} at this ${type.toLowerCase()}. Located in a ${i % 2 === 0 ? "central" : "scenic"} area, offering comfortable accommodations and excellent service.`,
                 price: basePrice + priceVariation,
                 rating: 3 + Math.random() * 2,

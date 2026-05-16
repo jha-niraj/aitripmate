@@ -1,12 +1,6 @@
 "use server";
 
 import OpenAI from "openai";
-import { revalidatePath } from "next/cache";
-
-// Initialize OpenAI client
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
 
 // Define inappropriate words detection
 const inappropriateWords = [
@@ -60,6 +54,7 @@ export async function processChatMessage(formData: FormData) {
         systemMessage += "If asked about non-travel topics, politely redirect the conversation back to Indian travel.";
 
         // Call OpenAI API with just the system prompt and user input
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
         const completion = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
             messages: [

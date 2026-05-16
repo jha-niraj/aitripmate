@@ -41,6 +41,10 @@ export function ProfileSettings() {
     const [newPreference, setNewPreference] = useState('');
     const [preferences, setPreferences] = useState<string[]>([]);
 
+    const [emergencyContactName, setEmergencyContactName] = useState("");
+    const [emergencyContactPhone, setEmergencyContactPhone] = useState("");
+    const [savingEmergency, setSavingEmergency] = useState(false);
+
     // Password reset state
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -70,6 +74,8 @@ export function ProfileSettings() {
             setLocation(userData.location || '');
             setBio(userData.bio || '');
             setPreferences(userData.travelPreferences || []);
+            setEmergencyContactName(userData.emergencyContactName || "");
+            setEmergencyContactPhone(userData.emergencyContactPhone || "");
 
             // Initialize notification preferences
             setNotificationPreferences(prefs =>
@@ -635,6 +641,76 @@ export function ProfileSettings() {
                                             }
                                         </Button>
                                     </motion.div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </FadeInUp>
+                    <FadeInUp className="mt-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Emergency Contact</CardTitle>
+                                <CardDescription>Your emergency contact for SOS alerts during travel</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="emergencyName">Contact Name</Label>
+                                    <Input
+                                        id="emergencyName"
+                                        value={emergencyContactName}
+                                        onChange={(e) => setEmergencyContactName(e.target.value)}
+                                        placeholder="e.g. Mom, Dad, Partner"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="emergencyPhone">Phone Number (with country code)</Label>
+                                    <Input
+                                        id="emergencyPhone"
+                                        value={emergencyContactPhone}
+                                        onChange={(e) => setEmergencyContactPhone(e.target.value)}
+                                        placeholder="e.g. +91 98765 43210"
+                                    />
+                                </div>
+                                <div className="flex justify-end">
+                                    <Button
+                                        onClick={async () => {
+                                            if (!userData?.id) return;
+                                            if (!emergencyContactName.trim() || !emergencyContactPhone.trim()) {
+                                                toast.error("Please enter both name and phone number");
+                                                return;
+                                            }
+                                            setSavingEmergency(true);
+                                            try {
+                                                const response = await fetch("/api/profile/update", {
+                                                    method: "PUT",
+                                                    headers: { "Content-Type": "application/json" },
+                                                    body: JSON.stringify({
+                                                        userId: userData.id,
+                                                        emergencyContactName: emergencyContactName.trim(),
+                                                        emergencyContactPhone: emergencyContactPhone.trim(),
+                                                    }),
+                                                });
+                                                if (!response.ok) throw new Error("Failed to save");
+                                                updateUserData({
+                                                    emergencyContactName: emergencyContactName.trim(),
+                                                    emergencyContactPhone: emergencyContactPhone.trim(),
+                                                });
+                                                toast.success("Emergency contact saved");
+                                            } catch {
+                                                toast.error("Failed to save emergency contact");
+                                            } finally {
+                                                setSavingEmergency(false);
+                                            }
+                                        }}
+                                        disabled={savingEmergency}
+                                        className="bg-[#00A699] hover:bg-[#008b80]"
+                                    >
+                                        {savingEmergency ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Saving...
+                                            </>
+                                        ) : "Save Emergency Contact"}
+                                    </Button>
                                 </div>
                             </CardContent>
                         </Card>

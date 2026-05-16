@@ -35,31 +35,31 @@ export function PopularDestinations() {
     const destinations = [
         {
             name: "Maharashtra",
-            image: "https://media.istockphoto.com/id/1477558521/vector/happy-maharastra-day-written-on-flag-in-hindi-with-dotted-maharastra-map.jpg?s=612x612&w=0&k=20&c=LQ_89EVFYv60Xa-M41-NvPhR0J8B3Uilfo6M4b784FA=",
+            image: "https://images.unsplash.com/photo-1567157577867-05ccb1388e66?w=800&q=80",
             tagline: "Land of Forts and Beaches",
             slug: "maharashtra",
         },
         {
             name: "Himachal Pradesh",
-            image: "https://media.istockphoto.com/id/1284679139/photo/mountain-landscape-with-green-grass-meadows-scenic-camping-himalayas-peaks-alpine-from-the.jpg?s=612x612&w=0&k=20&c=HakKeu5JZYpVx-cEThJWXXKI3xWhbx1JIaiTXp2Q3BQ=",
+            image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800&q=80",
             tagline: "The Abode of Snow",
             slug: "himachal",
         },
         {
             name: "Rajasthan",
-            image: "https://media.istockphoto.com/id/805563154/photo/mehrangharh-fort-and-jaswant-thada-mausoleum-in-jodhpur-rajasthan-india.jpg?s=612x612&w=0&k=20&c=5r9UxPkz9mIkfAIFPLyTwqBQyqSO7mcAdQtcqGHOboA=",
+            image: "https://images.unsplash.com/photo-1477587458883-47145ed6979c?w=800&q=80",
             tagline: "Land of Kings",
             slug: "rajasthan",
         },
         {
             name: "Kerala",
-            image: "https://media.istockphoto.com/id/472560436/photo/houseboat-in-southern-india.jpg?s=612x612&w=0&k=20&c=PYp-SgZO5Wkd7Ja2FPINpPlEjZZU24jYdEhxjQST-dU=",
+            image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=800&q=80",
             tagline: "God's Own Country",
             slug: "kerala",
         },
         {
             name: "Goa",
-            image: "https://media.istockphoto.com/id/1157048446/photo/aerial-shot-of-the-beach-from-above-showing-sea-beach-mountain-and-a-coconut-plantation-goa.jpg?s=612x612&w=0&k=20&c=BE0ZCnKZj8xi9Zgx5meO77k-o8v8EPT9TwlsPvY3TMc=",
+            image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800&q=80",
             tagline: "Pearl of the Orient",
             slug: "goa",
         },

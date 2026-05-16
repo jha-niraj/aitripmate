@@ -7,25 +7,25 @@ export function AboutTeam() {
             name: "Priya Sharma",
             role: "Founder & CEO",
             bio: "Former travel blogger with a passion for AI and technology. Priya founded AI Trip Mate after experiencing the challenges of planning complex trips across India.",
-            image: "https://imgs.search.brave.com/ibsp4i0oEn5e1aN9jF8mQKmYaRTUiLZ46rj_CKntFB8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90NC5m/dGNkbi5uZXQvanBn/LzAyLzg2LzQ3LzA5/LzM2MF9GXzI4NjQ3/MDk2NV92aWFITTZa/TmpyY3ZMRU5lMTR5/V1FGaTFqRW0yaktl/Vi5qcGc",
+            image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80",
         },
         {
             name: "Rahul Mehta",
             role: "CTO",
             bio: "AI specialist with over 15 years of experience in machine learning and natural language processing. Rahul leads our technology development.",
-            image: "https://imgs.search.brave.com/ibsp4i0oEn5e1aN9jF8mQKmYaRTUiLZ46rj_CKntFB8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90NC5m/dGNkbi5uZXQvanBn/LzAyLzg2LzQ3LzA5/LzM2MF9GXzI4NjQ3/MDk2NV92aWFITTZa/TmpyY3ZMRU5lMTR5/V1FGaTFqRW0yaktl/Vi5qcGc",
+            image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80",
         },
         {
             name: "Ananya Desai",
             role: "Head of Content",
             bio: "Travel writer and cultural expert who ensures our recommendations are authentic and respectful of local traditions.",
-            image: "https://imgs.search.brave.com/ibsp4i0oEn5e1aN9jF8mQKmYaRTUiLZ46rj_CKntFB8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90NC5m/dGNkbi5uZXQvanBn/LzAyLzg2LzQ3LzA5/LzM2MF9GXzI4NjQ3/MDk2NV92aWFITTZa/TmpyY3ZMRU5lMTR5/V1FGaTFqRW0yaktl/Vi5qcGc",
+            image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80",
         },
         {
             name: "Vikram Singh",
             role: "Lead UX Designer",
             bio: "User experience specialist focused on making travel planning intuitive and enjoyable for everyone.",
-            image: "https://imgs.search.brave.com/ibsp4i0oEn5e1aN9jF8mQKmYaRTUiLZ46rj_CKntFB8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90NC5m/dGNkbi5uZXQvanBn/LzAyLzg2LzQ3LzA5/LzM2MF9GXzI4NjQ3/MDk2NV92aWFITTZa/TmpyY3ZMRU5lMTR5/V1FGaTFqRW0yaktl/Vi5qcGc",
+            image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80",
         },
     ]
 

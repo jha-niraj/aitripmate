@@ -1,5 +1,6 @@
 import { Footer } from "@/components/footer";
 import Navbar from "@/components/navbar";
+import { SOSButton } from "@/components/sos-button";
 
 export default function RootLayout({
     children,
@@ -10,6 +11,7 @@ export default function RootLayout({
         <>
             <Navbar />
             {children}
+            <SOSButton />
             <Footer />
         </>
     )

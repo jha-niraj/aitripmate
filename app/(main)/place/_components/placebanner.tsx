@@ -9,14 +9,22 @@ interface PlaceBannerProps {
 export function PlaceBanner({ destination }: PlaceBannerProps) {
     const getBannerImage = (dest: string) => {
         const destinations: Record<string, string> = {
-            Maharashtra: "https://media.istockphoto.com/id/1477558521/vector/happy-maharastra-day-written-on-flag-in-hindi-with-dotted-maharastra-map.jpg?s=612x612&w=0&k=20&c=LQ_89EVFYv60Xa-M41-NvPhR0J8B3Uilfo6M4b784FA=",
-            Himachal: "https://media.istockphoto.com/id/1284679139/photo/mountain-landscape-with-green-grass-meadows-scenic-camping-himalayas-peaks-alpine-from-the.jpg?s=612x612&w=0&k=20&c=HakKeu5JZYpVx-cEThJWXXKI3xWhbx1JIaiTXp2Q3BQ=",
-            Rajasthan: "https://media.istockphoto.com/id/805563154/photo/mehrangharh-fort-and-jaswant-thada-mausoleum-in-jodhpur-rajasthan-india.jpg?s=612x612&w=0&k=20&c=5r9UxPkz9mIkfAIFPLyTwqBQyqSO7mcAdQtcqGHOboA=",
-            Kerala: "https://media.istockphoto.com/id/472560436/photo/houseboat-in-southern-india.jpg?s=612x612&w=0&k=20&c=PYp-SgZO5Wkd7Ja2FPINpPlEjZZU24jYdEhxjQST-dU=",
-            Goa: "https://media.istockphoto.com/id/1157048446/photo/aerial-shot-of-the-beach-from-above-showing-sea-beach-mountain-and-a-coconut-plantation-goa.jpg?s=612x612&w=0&k=20&c=BE0ZCnKZj8xi9Zgx5meO77k-o8v8EPT9TwlsPvY3TMc=",
+            Maharashtra: "https://images.unsplash.com/photo-1567157577867-05ccb1388e66?w=1600&q=80",
+            Himachal: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=1600&q=80",
+            Rajasthan: "https://images.unsplash.com/photo-1477587458883-47145ed6979c?w=1600&q=80",
+            Kerala: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1600&q=80",
+            Goa: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=1600&q=80",
+            Delhi: "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=1600&q=80",
+            Jaipur: "https://images.unsplash.com/photo-1477587458883-47145ed6979c?w=1600&q=80",
+            Mumbai: "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=1600&q=80",
+            Varanasi: "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=1600&q=80",
+            Udaipur: "https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1600&q=80",
+            Darjeeling: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1600&q=80",
+            Shimla: "https://images.unsplash.com/photo-1609587312208-cea54be969e7?w=1600&q=80",
+            Manali: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=1600&q=80",
         }
 
-        return destinations[dest] || "/placeholder.svg?height=600&width=1600"
+        return destinations[dest] || "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1600&q=80"
     }
 
     return (

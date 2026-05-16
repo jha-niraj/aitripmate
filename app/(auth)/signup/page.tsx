@@ -9,9 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { signIn, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { Loader2 } from "lucide-react";
 
 export default function SignupForm() {
     const [name, setName] = useState("")
@@ -19,9 +20,9 @@ export default function SignupForm() {
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
     const [agreedToTerms, setAgreedToTerms] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
     const { status } = useSession();
     const router = useRouter();
-    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
     useEffect(() => {
         if (status === "authenticated") {
@@ -29,69 +30,42 @@ export default function SignupForm() {
         }
     }, [router, status]);
 
-    const handleSignInGoogle = async () => {
-        try {
-            await signIn('google', { callbackUrl: '/' });
-        } catch (err) {
-            console.error('Google sign-in error:', err);
-        }
-    };
-
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (password !== confirmPassword) {
+            toast.error("Passwords do not match");
+            return;
+        }
+
+        if (password.length < 6) {
+            toast.error("Password must be at least 6 characters");
+            return;
+        }
+
         setIsSubmitting(true);
-
         try {
-            const response = await axios.post("/api/register", {
-                name,
-                email,
-                password
-            });
+            await axios.post("/api/register", { name, email, password });
 
-            // if (response.status === 200) {
-            //     toast("Registration successfull");
-            //     router.push(`/waiting?email=${email}`);
-            // }
-            if (response.status === 200) {
-                const result = await signIn("credentials", {
-                    name,
-                    email,
-                    password,
-                    redirect: false,
-                });
+            // Store password temporarily so verify page can sign in after OTP
+            sessionStorage.setItem(`atm_pwd_${email}`, password);
 
-                if (result?.error) {
-                    console.error("Sign in error:", result.error);
-                    toast("Authentication failed", {
-                        description: result.error,
-                    });
-                } else {
-                    toast("Success", {
-                        description: "Logged in successfully",
-                    });
-                    router.push("/dashboard");
-                }
-            }
+            toast.success("Account created! Check your email for the OTP.");
+            router.push(`/verify?email=${encodeURIComponent(email)}`);
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
-                const errorMessage = error.response?.data?.message || "Registration failed";
-                toast("Error", {
-                    description: errorMessage,
-                });
+                toast.error(error.response?.data?.message || "Registration failed");
             } else {
-                toast("Error", {
-                    description: "An unexpected error occurred",
-                });
+                toast.error("An unexpected error occurred");
             }
-            console.error("Registration error:", error);
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <section className="max-w-xl mx-auto p-4 flex items-center justify-center h-screen">
-            <Card className="shadow-lg">
+        <section className="max-w-xl mx-auto p-4 flex items-center justify-center min-h-screen">
+            <Card className="shadow-lg w-full">
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-2xl text-center">Create an account</CardTitle>
                     <p className="text-center text-gray-500">Join AI Trip Mate to start planning your adventures</p>
@@ -119,7 +93,7 @@ export default function SignupForm() {
                                 onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
-                        <div className="flex gap-3">
+                        <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-2">
                                 <Label htmlFor="password">Password</Label>
                                 <Input
@@ -127,7 +101,7 @@ export default function SignupForm() {
                                     type="password"
                                     required
                                     value={password}
-                                    placeholder="********"
+                                    placeholder="Min. 6 characters"
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
                             </div>
@@ -138,7 +112,7 @@ export default function SignupForm() {
                                     type="password"
                                     required
                                     value={confirmPassword}
-                                    placeholder="********"
+                                    placeholder="Repeat password"
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                 />
                             </div>
@@ -154,41 +128,35 @@ export default function SignupForm() {
                                 className="text-sm text-gray-500 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
                                 I agree to the{" "}
-                                <Link href="/termsandservice" className="text-[#00A699] hover:underline">
+                                <Link href="/contactus" className="text-[#00A699] hover:underline">
                                     Terms of Service
                                 </Link>{" "}
                                 and{" "}
-                                <Link href="/privacypolicy" className="text-[#00A699] hover:underline">
+                                <Link href="/contactus" className="text-[#00A699] hover:underline">
                                     Privacy Policy
                                 </Link>
                             </label>
                         </div>
-                        <Button type="submit" className="w-full bg-[#00A699] hover:bg-[#008b80]" disabled={!agreedToTerms}>
-                            {
-                                isSubmitting ? "Signing Up..." : "Sign Up"
-                            }
+                        <Button
+                            type="submit"
+                            className="w-full bg-[#00A699] hover:bg-[#008b80]"
+                            disabled={!agreedToTerms || isSubmitting}
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Creating account...
+                                </>
+                            ) : "Create Account"}
                         </Button>
                     </form>
                     <div className="mt-6 text-center">
                         <p className="text-sm text-gray-500">
                             Already have an account?{" "}
                             <Link href="/signin" className="text-[#00A699] hover:underline">
-                                Log in
+                                Sign in
                             </Link>
                         </p>
-                    </div>
-                    <div className="relative my-4">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-300"></div>
-                        </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-white text-gray-500">Or continue with</span>
-                        </div>
-                    </div>
-                    <div className="grid gap-4">
-                        <Button variant="outline" onClick={handleSignInGoogle} className="w-full">
-                            Google
-                        </Button>
                     </div>
                 </CardContent>
             </Card>

@@ -10,7 +10,7 @@ export async function PUT(request: NextRequest) {
 		}
 
 		const body = await request.json();
-		const { userId, name, username, location, bio, travelPreferences } = body;
+		const { userId, name, username, location, bio, travelPreferences, emergencyContactName, emergencyContactPhone } = body;
 
 		// Verify the user is updating their own profile
 		const user = await prisma.user.findUnique({
@@ -44,6 +44,8 @@ export async function PUT(request: NextRequest) {
 				location: location || undefined,
 				bio: bio || undefined,
 				travelPreferences: travelPreferences || undefined,
+				emergencyContactName: emergencyContactName !== undefined ? emergencyContactName : undefined,
+				emergencyContactPhone: emergencyContactPhone !== undefined ? emergencyContactPhone : undefined,
 			},
 			select: {
 				id: true,
@@ -53,6 +55,8 @@ export async function PUT(request: NextRequest) {
 				location: true,
 				bio: true,
 				travelPreferences: true,
+				emergencyContactName: true,
+				emergencyContactPhone: true,
 			},
 		});
 

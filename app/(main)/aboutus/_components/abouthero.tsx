@@ -8,7 +8,7 @@ export function AboutHero() {
             <motion.div
                 className="absolute inset-0 bg-cover bg-center"
                 style={{
-                    backgroundImage: "url('/placeholder.svg?height=800&width=1600')",
+                    backgroundImage: "url('https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1600&q=80')",
                     filter: "brightness(0.7)",
                 }}
                 initial={{ scale: 1.1 }}

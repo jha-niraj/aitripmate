@@ -18,6 +18,8 @@ export interface UserProfileData {
 	emailNotifications: boolean;
 	pushNotifications: boolean;
 	notificationTypes: string[];
+	emergencyContactName?: string;
+	emergencyContactPhone?: string;
 }
 
 export interface TripData {

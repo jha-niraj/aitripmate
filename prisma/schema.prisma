@@ -40,7 +40,13 @@ model User {
     emailNotifications   Boolean   @default(true)
     pushNotifications    Boolean   @default(true)
     notificationTypes    String[]  @default([])
-    
+
+    emergencyContactName  String?
+    emergencyContactPhone String?
+
+    otpCode   String?
+    otpExpiry DateTime?
+
     accounts Account[]
     trips    Trip[]
     reviews  Review[]
@@ -82,13 +88,22 @@ model ContactMessage {
 }
 
 model Trip {
-    id          String   @id @default(cuid())
-    destination String
-    date        DateTime
-    image       String?
-    userId      String
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    id              String   @id @default(cuid())
+    destination     String
+    date            DateTime
+    image           String?
+    userId          String
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+
+    days            Int?
+    budget          String?
+    travelType      String?
+    interests       String[]  @default([])
+    itinerary       Json?
+    destinationType String?
+    riskLevel       String?   @default("unknown")
+    confirmed       Boolean   @default(false)
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

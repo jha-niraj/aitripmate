@@ -9,7 +9,7 @@ export default function HotelsMainPage() {
 		{
 			id: "delhi",
 			name: "Delhi",
-			image: "/placeholder.svg?height=400&width=600&text=Delhi",
+			image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800&q=80",
 			description:
 				"Experience the perfect blend of old and new in India's capital, from ancient monuments to bustling markets.",
 			hotelCount: 78,
@@ -19,7 +19,7 @@ export default function HotelsMainPage() {
 		{
 			id: "jaipur",
 			name: "Jaipur",
-			image: "/placeholder.svg?height=400&width=600&text=Jaipur",
+			image: "https://images.unsplash.com/photo-1477587458883-47145ed6979c?w=800&q=80",
 			description: "Explore the Pink City with its majestic palaces, vibrant bazaars, and rich Rajasthani culture.",
 			hotelCount: 65,
 			featured: true,
@@ -28,7 +28,7 @@ export default function HotelsMainPage() {
 		{
 			id: "goa",
 			name: "Goa",
-			image: "/placeholder.svg?height=400&width=600&text=Goa",
+			image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800&q=80",
 			description: "Relax on pristine beaches, enjoy water sports, and experience the unique Indo-Portuguese heritage.",
 			hotelCount: 92,
 			featured: true,
@@ -37,7 +37,7 @@ export default function HotelsMainPage() {
 		{
 			id: "mumbai",
 			name: "Mumbai",
-			image: "/placeholder.svg?height=400&width=600&text=Mumbai",
+			image: "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=800&q=80",
 			description:
 				"Discover the city of dreams with its colonial architecture, Bollywood glamour, and vibrant street food.",
 			hotelCount: 84,
@@ -47,7 +47,7 @@ export default function HotelsMainPage() {
 		{
 			id: "varanasi",
 			name: "Varanasi",
-			image: "/placeholder.svg?height=400&width=600&text=Varanasi",
+			image: "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=800&q=80",
 			description:
 				"Experience spiritual awakening in one of the world's oldest living cities on the banks of the sacred Ganges.",
 			hotelCount: 42,
@@ -57,7 +57,7 @@ export default function HotelsMainPage() {
 		{
 			id: "udaipur",
 			name: "Udaipur",
-			image: "/placeholder.svg?height=400&width=600&text=Udaipur",
+			image: "https://images.unsplash.com/photo-1599661046289-e31897846e41?w=800&q=80",
 			description:
 				"Visit the City of Lakes with its romantic setting, magnificent palaces, and royal Rajasthani heritage.",
 			hotelCount: 56,
@@ -67,7 +67,7 @@ export default function HotelsMainPage() {
 		{
 			id: "darjeeling",
 			name: "Darjeeling",
-			image: "/placeholder.svg?height=400&width=600&text=Darjeeling",
+			image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=80",
 			description: "Enjoy breathtaking Himalayan views, world-famous tea plantations, and the charming toy train ride.",
 			hotelCount: 38,
 			featured: false,
@@ -76,7 +76,7 @@ export default function HotelsMainPage() {
 		{
 			id: "kerala",
 			name: "Kerala",
-			image: "/placeholder.svg?height=400&width=600&text=Kerala",
+			image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=800&q=80",
 			description:
 				"Explore God's Own Country with its serene backwaters, lush greenery, and rejuvenating Ayurvedic treatments.",
 			hotelCount: 73,
@@ -135,6 +135,18 @@ export default function HotelsMainPage() {
 		},
 	]
 
+	const placeImages: Record<string, string> = {
+		Darjeeling: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=80",
+		Shimla: "https://images.unsplash.com/photo-1609587312208-cea54be969e7?w=800&q=80",
+		Manali: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800&q=80",
+		Kerala: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=800&q=80",
+		Goa: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800&q=80",
+		Udaipur: "https://images.unsplash.com/photo-1599661046289-e31897846e41?w=800&q=80",
+		Jaipur: "https://images.unsplash.com/photo-1477587458883-47145ed6979c?w=800&q=80",
+		Delhi: "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800&q=80",
+		Varanasi: "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=800&q=80",
+	}
+
 	return (
 		<div className="min-h-screen bg-white w-full">
 			<section className="w-full relative bg-gradient-to-b from-[#000080]/90 to-[#000080]/70 py-32">
@@ -143,7 +155,7 @@ export default function HotelsMainPage() {
 						<div
 							className="absolute inset-0 bg-cover bg-center opacity-20"
 							style={{
-								backgroundImage: "url('/placeholder.svg?height=800&width=1600&text=Luxury+Indian+Hotels')",
+								backgroundImage: "url('https://images.unsplash.com/photo-1545959570-a94084071b5d?w=1600&q=80')",
 							}}
 						/>
 					</div>
@@ -264,7 +276,7 @@ export default function HotelsMainPage() {
 									<div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all group">
 										<div className="h-48 overflow-hidden relative">
 											<Image
-												src={`/placeholder.svg?height=400&width=600&text=${place}`}
+												src={placeImages[place] || "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800&q=80"}
 												alt={place}
 												className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
 												height={30}
@@ -356,13 +368,13 @@ export default function HotelsMainPage() {
 					</div>
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 						<div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 border-b-4 border-[#FF9933] group">
-							<div className="h-40 bg-[#FF9933] bg-opacity-10 flex items-center justify-center group-hover:bg-opacity-20 transition-all">
-								<Image 
-									src="/placeholder.svg?height=100&width=100&text=Heritage" 
-									alt="Heritage" 
-									className="h-20 w-20" 
-									height={30}
-									width={30}
+							<div className="h-40 overflow-hidden relative">
+								<Image
+									src="https://images.unsplash.com/photo-1607513746994-51f730a44832?w=600&q=80"
+									alt="Heritage Hotel"
+									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+									height={160}
+									width={300}
 								/>
 							</div>
 							<div className="p-5 text-center">
@@ -379,13 +391,13 @@ export default function HotelsMainPage() {
 							</div>
 						</div>
 						<div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 border-b-4 border-[#138808] group">
-							<div className="h-40 bg-[#138808] bg-opacity-10 flex items-center justify-center group-hover:bg-opacity-20 transition-all">
+							<div className="h-40 overflow-hidden relative">
 								<Image
-									src="/placeholder.svg?height=100&width=100&text=Wellness"
-									alt="Wellness"
-									className="h-20 w-20"
-									height={30}
-									width={30}
+									src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80"
+									alt="Wellness Retreat"
+									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+									height={160}
+									width={300}
 								/>
 							</div>
 							<div className="p-5 text-center">
@@ -400,13 +412,13 @@ export default function HotelsMainPage() {
 							</div>
 						</div>
 						<div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 border-b-4 border-[#000080] group">
-							<div className="h-40 bg-[#000080] bg-opacity-10 flex items-center justify-center group-hover:bg-opacity-20 transition-all">
-								<Image 
-									src="/placeholder.svg?height=100&width=100&text=Beach" 
-									alt="Beach" 
-									className="h-20 w-20"
-									height={30}
-									width={30}
+							<div className="h-40 overflow-hidden relative">
+								<Image
+									src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80"
+									alt="Beach Resort"
+									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+									height={160}
+									width={300}
 								/>
 							</div>
 							<div className="p-5 text-center">
@@ -421,13 +433,13 @@ export default function HotelsMainPage() {
 							</div>
 						</div>
 						<div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 border-b-4 border-[#FF9933] group">
-							<div className="h-40 bg-[#FF9933] bg-opacity-10 flex items-center justify-center group-hover:bg-opacity-20 transition-all">
-								<Image 
-									src="/placeholder.svg?height=100&width=100&text=Wildlife"
-									alt="Wildlife"
-									className="h-20 w-20"
-									height={30}
-									width={30}
+							<div className="h-40 overflow-hidden relative">
+								<Image
+									src="https://images.unsplash.com/photo-1549366021-9f761d040a4d?w=600&q=80"
+									alt="Wildlife Lodge"
+									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+									height={160}
+									width={300}
 								/>
 							</div>
 							<div className="p-5 text-center">

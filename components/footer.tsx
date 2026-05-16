@@ -11,49 +11,37 @@ export function Footer() {
                             <Globe className="h-6 w-6 text-[#00A699]" />
                             <span className="font-bold text-xl">AI Trip Mate</span>
                         </div>
-                        <p className="text-gray-400 mb-4">Your AI-powered travel companion</p>
+                        <p className="text-gray-400 mb-4">Your AI-powered travel companion for India</p>
                         <p className="text-gray-400">© {new Date().getFullYear()} AI Trip Mate. All rights reserved.</p>
                     </div>
                     <div className="flex flex-col space-y-3">
                         <h3 className="font-semibold text-lg mb-2">Quick Links</h3>
-                        <Link href="/" className="text-gray-400 hover:text-white transition-colors">
-                            Home
-                        </Link>
-                        <Link href="/about" className="text-gray-400 hover:text-white transition-colors">
-                            About Us
-                        </Link>
-                        <Link href="/itinerary-planner" className="text-gray-400 hover:text-white transition-colors">
-                            Itinerary Planner
-                        </Link>
-                        <Link href="#" className="text-gray-400 hover:text-white transition-colors">
-                            Privacy Policy
-                        </Link>
-                        <Link href="#" className="text-gray-400 hover:text-white transition-colors">
-                            Terms of Service
-                        </Link>
+                        <Link href="/" className="text-gray-400 hover:text-white transition-colors">Home</Link>
+                        <Link href="/aboutus" className="text-gray-400 hover:text-white transition-colors">About Us</Link>
+                        <Link href="/itenaryplanner" className="text-gray-400 hover:text-white transition-colors">Itinerary Planner</Link>
+                        <Link href="/hotels" className="text-gray-400 hover:text-white transition-colors">Hotels</Link>
+                        <Link href="/blog" className="text-gray-400 hover:text-white transition-colors">Blog</Link>
+                        <Link href="/contactus" className="text-gray-400 hover:text-white transition-colors">Contact Us</Link>
                     </div>
                     <div>
                         <h3 className="font-semibold text-lg mb-4">Connect With Us</h3>
                         <div className="flex space-x-4">
-                            <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                            <Link href="#" className="text-gray-400 hover:text-white transition-colors" aria-label="Twitter">
                                 <Twitter className="h-6 w-6" />
                             </Link>
-                            <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                            <Link href="#" className="text-gray-400 hover:text-white transition-colors" aria-label="Instagram">
                                 <Instagram className="h-6 w-6" />
                             </Link>
-                            <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                            <Link href="#" className="text-gray-400 hover:text-white transition-colors" aria-label="Facebook">
                                 <Facebook className="h-6 w-6" />
                             </Link>
                         </div>
                         <div className="mt-6">
-                            <h4 className="font-medium mb-2">Subscribe to our newsletter</h4>
-                            <div className="flex">
-                                <input
-                                    type="email"
-                                    placeholder="Your email"
-                                    className="px-4 py-2 rounded-l-md text-gray-800 w-full focus:outline-none"
-                                />
-                                <button className="bg-[#00A699] hover:bg-[#008b80] px-4 py-2 rounded-r-md">Subscribe</button>
+                            <h4 className="font-medium mb-2">Emergency Helplines</h4>
+                            <div className="space-y-1">
+                                <p className="text-gray-400 text-sm">National Emergency: 112</p>
+                                <p className="text-gray-400 text-sm">Tourist Helpline: 1800-111-363</p>
+                                <p className="text-gray-400 text-sm">Ambulance: 108</p>
                             </div>
                         </div>
                     </div>
@@ -62,4 +50,3 @@ export function Footer() {
         </footer>
     )
 }
-

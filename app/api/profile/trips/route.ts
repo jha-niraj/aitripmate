@@ -33,6 +33,8 @@ export async function GET(request: NextRequest) {
 				destination: true,
 				date: true,
 				image: true,
+				days: true,
+				itinerary: true,
 			},
 		});
 

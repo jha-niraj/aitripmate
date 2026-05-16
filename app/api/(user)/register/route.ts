@@ -1,241 +1,116 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { RequestBody } from "@/types";
-// import { Resend } from "resend";
+import bcrypt from "bcrypt";
+import { Resend } from "resend";
 
-// const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+function generateOTP(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 export async function POST(request: NextRequest) {
     try {
-        const body: RequestBody = await request.json();
+        const body = await request.json();
         const { name, email, password } = body;
 
         if (!name || !email || !password) {
-            return NextResponse.json(
-                { message: "Missing required fields" },
-                { status: 400 }
-            );
+            return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
         }
 
-        const existingUser = await prisma.user.findUnique({
-            where: {
-                email
-            }
-        })
+        if (password.length < 6) {
+            return NextResponse.json({ message: "Password must be at least 6 characters" }, { status: 400 });
+        }
 
+        const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
-            return NextResponse.json({ message: "User alreay exist with this email" }, { status: 501 });
+            if (existingUser.emailVerified) {
+                return NextResponse.json({ message: "User already exists with this email" }, { status: 409 });
+            }
+            // Exists but unverified — refresh OTP and resend
+            const otp = generateOTP();
+            const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+            await prisma.user.update({
+                where: { email },
+                data: { otpCode: otp, otpExpiry },
+            });
+            await sendOTPEmail(email, existingUser.name, otp);
+            return NextResponse.json({ message: "OTP resent. Please verify your email." }, { status: 200 });
         }
 
-        // const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const otp = generateOTP();
+        const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
-        // const verifyToken = Math.random().toString(36).substring(2);
-        // const verifyTokenExpiry = new Date();
-        // verifyTokenExpiry.setHours(verifyTokenExpiry.getHours() + 72);
-
-        const user = await prisma.user.create({
+        await prisma.user.create({
             data: {
                 name,
                 email,
-                password,
-                // image: "",
-                // resetPasswordToken: verifyToken,
-                // resetPasswordExpire: verifyTokenExpiry,
-            }
+                password: hashedPassword,
+                otpCode: otp,
+                otpExpiry,
+            },
         });
 
-        // const verifyUrl = `${process.env.NEXTAUTH_URL}/verify?token=${verifyToken}`
+        await sendOTPEmail(email, name, otp);
 
-        // console.log("Starting sening email");
-        // await resend.emails.send({
-        //     from: 'Nilesh <business@eventeye.in>',
-        //     to: email,
-        //     subject: 'Verify Your Email',
-        //     html: `
-        //         <!DOCTYPE html>
-        //   <html lang="en">
-        //     <head>
-        //       <meta charset="UTF-8">
-        //       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        //       <style>
-        //         /* Base styles */
-        //         body { 
-        //           font-family: 'Helvetica Neue', Arial, sans-serif; 
-        //           background-color: #f7f7f7; 
-        //           margin: 0; 
-        //           padding: 0; 
-        //           color: #333333;
-        //           line-height: 1.6;
-        //         }
-                
-        //         /* Container with improved styling */
-        //         .container { 
-        //           width: 100%; 
-        //           max-width: 550px; 
-        //           margin: 40px auto; 
-        //           background-color: #ffffff; 
-        //           border-radius: 12px; 
-        //           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); 
-        //           overflow: hidden; 
-        //         }
-                
-        //         /* Header with more appealing styling */
-        //         .header { 
-        //           background-color: #181818; 
-        //           color: #ffffff; 
-        //           padding: 30px 20px; 
-        //           text-align: center; 
-        //         }
-                
-        //         .header h1 {
-        //           margin: 0;
-        //           font-weight: 500;
-        //           font-size: 24px;
-        //           letter-spacing: -0.5px;
-        //         }
-                
-        //         /* Logo styling */
-        //         .logo {
-        //           margin-bottom: 15px;
-        //         }
-                
-        //         .logo img {
-        //           height: 40px;
-        //           width: auto;
-        //         }
-                
-        //         /* Content area with better spacing */
-        //         .content { 
-        //           padding: 35px 30px;
-        //           color: #333333;
-        //         }
-                
-        //         .content p {
-        //           margin: 0 0 16px;
-        //           font-size: 16px;
-        //         }
-                
-        //         /* Improved button styling */
-        //         .button-container {
-        //           text-align: center;
-        //           margin: 30px 0;
-        //         }
-                
-        //         .button { 
-        //           display: inline-block; 
-        //           padding: 14px 28px; 
-        //           background-color: #181818; 
-        //           color: #ffffff !important; 
-        //           text-decoration: none; 
-        //           border-radius: 8px; 
-        //           font-size: 16px;
-        //           font-weight: 500;
-        //           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-        //           transition: all 0.2s ease;
-        //         }
-                
-        //         .button:hover {
-        //           background-color: #333333;
-        //           transform: translateY(-2px);
-        //           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
-        //         }
-                
-        //         /* Support text styling */
-        //         .support {
-        //           margin-top: 30px;
-        //           padding-top: 20px;
-        //           border-top: 1px solid #eeeeee;
-        //           font-size: 14px;
-        //           color: #666666;
-        //         }
-                
-        //         .support a {
-        //           color: #181818;
-        //           text-decoration: none;
-        //           font-weight: 500;
-        //           border-bottom: 1px solid #cccccc;
-        //           padding-bottom: 1px;
-        //           transition: border-color 0.2s ease;
-        //         }
-                
-        //         .support a:hover {
-        //           border-color: #181818;
-        //         }
-                
-        //         /* Footer with improved styling */
-        //         .footer { 
-        //           background-color: #f7f7f7; 
-        //           color: #999999; 
-        //           text-align: center; 
-        //           padding: 20px; 
-        //           font-size: 13px;
-        //         }
-                
-        //         /* Responsive adjustments */
-        //         @media only screen and (max-width: 600px) {
-        //           .container {
-        //             margin: 20px auto;
-        //             width: 90%;
-        //           }
-                  
-        //           .content {
-        //             padding: 25px 20px;
-        //           }
-        //         }
-        //       </style>
-        //     </head>
-        //     <body>
-        //       <div class="container">
-        //         <div class="header">
-        //           <div class="logo">
-        //             <!-- You can replace this with an actual logo -->
-        //             <svg width="120" height="30" viewBox="0 0 120 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-        //               <rect width="30" height="30" rx="6" fill="white"/>
-        //               <path d="M7 15H23M15 7V23" stroke="#181818" stroke-width="2" stroke-linecap="round"/>
-        //               <text x="40" y="21" fill="white" font-family="Helvetica Neue" font-size="18" font-weight="500">EventEye</text>
-        //             </svg>
-        //           </div>
-        //           <h1>Verify Your Email Address</h1>
-        //         </div>
-        //         <div class="content">
-        //           <p>Hi ${name},</p>
-        //           <p>Thank you for signing up with EventEye! We're excited to have you on board.</p>
-        //           <p>Please verify your email address to get started:</p>
-                  
-        //           <div class="button-container">
-        //             <a href="${verifyUrl}" class="button">Verify Email Address</a>
-        //           </div>
-                  
-        //           <p>This link will expire in 24 hours. If you didn't create an account with EventEye, you can safely ignore this email.</p>
-                  
-        //           <div class="support">
-        //             <p>Need help? Feel free to <a href="mailto:support@eventeye.in">contact our support team</a>.</p>
-        //           </div>
-        //         </div>
-        //         <div class="footer">
-        //           <p>&copy; 2023 EventEye. All rights reserved.</p>
-        //           <p>123 Event Street, City, Country</p>
-        //         </div>
-        //       </div>
-        //     </body>
-        //   </html>
-        //     `
-        // });
-        // console.log("Email sent");
-
-        return NextResponse.json({ message: "Sign Up Successful", user }, { status: 200 });
+        return NextResponse.json({ message: "Registration successful. Check your email for the OTP." }, { status: 200 });
     } catch (err) {
         const error = err as Error;
-        console.error('API Error:', {
-            name: error.name,
-            message: error.message,
-            stack: error.stack
-        });
-        return NextResponse.json(
-            {
-                error: error.message || 'An unexpected error occurred'
-            },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: error.message || "An unexpected error occurred" }, { status: 500 });
     }
+}
+
+async function sendOTPEmail(email: string, name: string, otp: string) {
+    await resend.emails.send({
+        from: "AI TripMate <noreply@nirajjha.xyz>",
+        to: email,
+        subject: "Your AI TripMate Verification Code",
+        html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="520" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="background:#00A699;padding:32px 40px;text-align:center;">
+              <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:-0.5px;">AI TripMate</h1>
+              <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:14px;">Your AI-powered travel companion</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:40px;">
+              <p style="margin:0 0 16px;color:#374151;font-size:16px;">Hi <strong>${name}</strong>,</p>
+              <p style="margin:0 0 24px;color:#6b7280;font-size:15px;line-height:1.6;">
+                Welcome to AI TripMate! Use the verification code below to confirm your email address.
+                This code expires in <strong>10 minutes</strong>.
+              </p>
+              <div style="background:#f0fdf9;border:2px dashed #00A699;border-radius:12px;padding:28px;text-align:center;margin:0 0 28px;">
+                <p style="margin:0 0 8px;color:#6b7280;font-size:13px;text-transform:uppercase;letter-spacing:1px;">Your OTP Code</p>
+                <p style="margin:0;color:#00A699;font-size:44px;font-weight:800;letter-spacing:10px;">${otp}</p>
+              </div>
+              <p style="margin:0;color:#9ca3af;font-size:13px;line-height:1.6;">
+                If you didn't create an account with AI TripMate, you can safely ignore this email.
+                Never share this code with anyone.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#f9fafb;padding:20px 40px;border-top:1px solid #e5e7eb;text-align:center;">
+              <p style="margin:0;color:#9ca3af;font-size:12px;">© ${new Date().getFullYear()} AI TripMate. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+    });
 }

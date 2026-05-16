@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
     Calendar, Clock, Plus, Trash2, ArrowUp,
-    ArrowDown, Save, Share2, Download, FileText, MapPin
+    ArrowDown, Save, Share2, Download, FileText, MapPin, Loader2
 } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -14,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { motion, AnimatePresence } from "framer-motion"
 import { FadeIn, FadeInUp, SlideInLeft, SlideInRight, StaggerContainer, StaggerItem } from "@/components/motionwrapper"
+import { useSession } from "next-auth/react"
 
 interface ItineraryItem {
     id: string
@@ -39,55 +41,152 @@ interface Itinerary {
     notes: string
 }
 
-export function FullItineraryPlanner() {
-    const [itineraries, setItineraries] = useState<Itinerary[]>([
-        {
-            id: "1",
-            name: "Trip to Rajasthan",
-            destination: "Rajasthan",
-            startDate: "2023-10-15",
-            endDate: "2023-10-22",
-            days: [
-                {
-                    date: "2023-10-15",
-                    items: [
-                        {
-                            id: "1",
-                            activity: "Arrival in Jaipur",
-                            time: "10:00",
-                            location: "Jaipur International Airport",
-                            notes: "Check in at hotel and rest",
-                            category: "transport",
-                        },
-                        {
-                            id: "2",
-                            activity: "Visit Hawa Mahal",
-                            time: "15:00",
-                            location: "Hawa Mahal, Jaipur",
-                            notes: "Spend about 2 hours exploring",
-                            category: "sightseeing",
-                        },
-                    ],
-                },
-                {
-                    date: "2023-10-16",
-                    items: [
-                        {
-                            id: "3",
-                            activity: "Amber Fort Tour",
-                            time: "09:00",
-                            location: "Amber Fort, Jaipur",
-                            notes: "Book elephant ride in advance",
-                            category: "sightseeing",
-                        },
-                    ],
-                },
-            ],
-            notes: "Remember to pack light clothes and sunscreen",
-        },
-    ])
+interface DbActivity {
+    time: string
+    name: string
+    location: string
+    description: string
+    category: string
+}
 
-    const [activeItineraryId, setActiveItineraryId] = useState<string>(itineraries[0]?.id || "")
+interface DbDayPlan {
+    day: number
+    theme: string
+    activities: DbActivity[]
+    meals?: { breakfast: string; lunch: string; dinner: string }
+    accommodation?: string
+}
+
+interface DbItineraryData {
+    tripName?: string
+    summary?: string
+    days: DbDayPlan[]
+}
+
+interface DbTrip {
+    id: string
+    destination: string
+    date: string
+    image?: string | null
+    days?: number | null
+    itinerary?: DbItineraryData | null
+}
+
+function mapCategory(cat: string): string {
+    const map: Record<string, string> = {
+        transport: "transport", travel: "transport",
+        accommodation: "accommodation", hotel: "accommodation", lodging: "accommodation",
+        food: "food", restaurant: "food", dining: "food", meal: "food",
+        sightseeing: "sightseeing", culture: "sightseeing", landmark: "sightseeing", museum: "sightseeing",
+    }
+    return map[cat?.toLowerCase()] || "activity"
+}
+
+function mapDbTripToItinerary(trip: DbTrip): Itinerary {
+    const startDate = new Date(trip.date)
+    const numDays = trip.days || 1
+    const endDate = new Date(startDate)
+    endDate.setDate(endDate.getDate() + numDays - 1)
+
+    const itineraryData = trip.itinerary
+    const days: ItineraryDay[] = []
+
+    if (itineraryData?.days?.length) {
+        itineraryData.days.forEach((dayPlan, index) => {
+            const date = new Date(startDate)
+            date.setDate(date.getDate() + index)
+
+            const activityItems: ItineraryItem[] = (dayPlan.activities || []).map((act) => ({
+                id: `${trip.id}-d${index}-${act.time}-${act.name}`,
+                activity: act.name,
+                time: act.time,
+                location: act.location,
+                notes: act.description,
+                category: mapCategory(act.category),
+            }))
+
+            const mealItems: ItineraryItem[] = []
+            if (dayPlan.meals) {
+                const mealTime = [
+                    { time: "08:00", meal: dayPlan.meals.breakfast, label: "Breakfast" },
+                    { time: "13:00", meal: dayPlan.meals.lunch, label: "Lunch" },
+                    { time: "20:00", meal: dayPlan.meals.dinner, label: "Dinner" },
+                ]
+                mealTime.forEach(({ time, meal, label }) => {
+                    if (meal) {
+                        mealItems.push({
+                            id: `${trip.id}-d${index}-${label}`,
+                            activity: `${label}: ${meal}`,
+                            time,
+                            location: dayPlan.accommodation || "",
+                            notes: "",
+                            category: "food",
+                        })
+                    }
+                })
+            }
+
+            days.push({
+                date: date.toISOString().split("T")[0],
+                items: [...activityItems, ...mealItems].sort((a, b) => a.time.localeCompare(b.time)),
+            })
+        })
+    } else {
+        for (let i = 0; i < numDays; i++) {
+            const date = new Date(startDate)
+            date.setDate(date.getDate() + i)
+            days.push({ date: date.toISOString().split("T")[0], items: [] })
+        }
+    }
+
+    return {
+        id: trip.id,
+        name: itineraryData?.tripName || `Trip to ${trip.destination}`,
+        destination: trip.destination,
+        startDate: startDate.toISOString().split("T")[0],
+        endDate: endDate.toISOString().split("T")[0],
+        days,
+        notes: itineraryData?.summary || "",
+    }
+}
+
+export function FullItineraryPlanner() {
+    const { data: session } = useSession()
+    const [itineraries, setItineraries] = useState<Itinerary[]>([])
+    const [activeTab, setActiveTab] = useState("existing")
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchTrips = async () => {
+            if (!session?.user?.email) {
+                setLoading(false)
+                return
+            }
+            try {
+                const profileRes = await fetch(`/api/profile?email=${encodeURIComponent(session.user.email)}`)
+                if (!profileRes.ok) throw new Error("Failed to fetch profile")
+                const profileData = await profileRes.json()
+                const userId = profileData.user.id
+
+                const tripsRes = await fetch(`/api/profile/trips?userId=${userId}`)
+                if (!tripsRes.ok) throw new Error("Failed to fetch trips")
+                const tripsData = await tripsRes.json()
+
+                const mapped = (tripsData.trips as DbTrip[]).map(mapDbTripToItinerary)
+                setItineraries(mapped)
+                if (mapped.length > 0) {
+                    setActiveItineraryId(mapped[0].id)
+                }
+            } catch {
+                toast.error("Failed to load itineraries")
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchTrips()
+    }, [session])
+
+    const [activeItineraryId, setActiveItineraryId] = useState<string>("")
     const [newItineraryName, setNewItineraryName] = useState("")
     const [newItineraryDestination, setNewItineraryDestination] = useState("")
     const [newItineraryStartDate, setNewItineraryStartDate] = useState("")
@@ -98,7 +197,7 @@ export function FullItineraryPlanner() {
     // Create a new itinerary
     const createNewItinerary = () => {
         if (!newItineraryName || !newItineraryDestination || !newItineraryStartDate || !newItineraryEndDate) {
-            alert("Please fill in all fields")
+            toast.error("Please fill in all required fields")
             return
         }
 
@@ -128,6 +227,7 @@ export function FullItineraryPlanner() {
 
         setItineraries([...itineraries, newItinerary])
         setActiveItineraryId(newItinerary.id)
+        setActiveTab("existing")
 
         // Reset form
         setNewItineraryName("")
@@ -138,14 +238,12 @@ export function FullItineraryPlanner() {
 
     // Delete an itinerary
     const deleteItinerary = (id: string) => {
-        if (confirm("Are you sure you want to delete this itinerary?")) {
-            const newItineraries = itineraries.filter((itin) => itin.id !== id)
-            setItineraries(newItineraries)
-
-            if (activeItineraryId === id) {
-                setActiveItineraryId(newItineraries[0]?.id || "")
-            }
+        const newItineraries = itineraries.filter((itin) => itin.id !== id)
+        setItineraries(newItineraries)
+        if (activeItineraryId === id) {
+            setActiveItineraryId(newItineraries[0]?.id || "")
         }
+        toast.success("Itinerary deleted")
     }
 
     // Add a new day to the active itinerary
@@ -154,7 +252,7 @@ export function FullItineraryPlanner() {
 
         // Check if date already exists
         if (activeItinerary.days.some((day) => day.date === date)) {
-            alert("This date already exists in your itinerary")
+            toast.error("This date already exists in your itinerary")
             return
         }
 
@@ -279,8 +377,7 @@ export function FullItineraryPlanner() {
         setItineraries(updatedItineraries)
     }
     const saveItinerary = () => {
-        alert("Itinerary saved successfully!")
-        console.log(activeItinerary)
+        toast.success("Itinerary saved!")
     }
     const getCategoryIcon = (category: string) => {
         switch (category) {
@@ -299,19 +396,28 @@ export function FullItineraryPlanner() {
 
     return (
         <div>
-            <Tabs defaultValue="existing" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-8">
                     <TabsTrigger value="existing">My Itineraries</TabsTrigger>
                     <TabsTrigger value="create">Create New Itinerary</TabsTrigger>
                 </TabsList>
                 <TabsContent value="existing">
                     {
-                        itineraries.length === 0 ? (
+                        loading ? (
                             <FadeIn className="text-center py-12">
+                                <Loader2 className="h-10 w-10 mx-auto animate-spin text-[#00A699] mb-4" />
+                                <p className="text-gray-500">Loading your itineraries...</p>
+                            </FadeIn>
+                        ) : itineraries.length === 0 ? (
+                            <FadeIn className="text-center py-12">
+                                <div className="mb-4 text-gray-300">
+                                    <FileText className="h-16 w-16 mx-auto" />
+                                </div>
                                 <h3 className="text-xl font-medium mb-2">No Itineraries Yet</h3>
-                                <p className="text-gray-500 mb-6">Create your first itinerary to get started</p>
+                                <p className="text-gray-500 mb-6">Create your first itinerary to get started planning your trip</p>
                                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                    <Button>
+                                    <Button className="bg-[#00A699] hover:bg-[#008b80]" onClick={() => setActiveTab("create")}>
+                                        <Plus className="mr-2 h-4 w-4" />
                                         Create New Itinerary
                                     </Button>
                                 </motion.div>

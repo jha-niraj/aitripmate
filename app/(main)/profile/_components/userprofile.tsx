@@ -102,7 +102,7 @@ export function UserProfile() {
                 <motion.div
                     className="absolute inset-0 bg-cover bg-center"
                     style={{
-                        backgroundImage: `url('${userData?.coverPhoto || '/placeholder.svg?height=600&width=1600'}')`,
+                        backgroundImage: `url('${userData?.coverPhoto || 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1600&q=80'}')`,
                         filter: "brightness(0.8)",
                     }}
                     initial={{ scale: 1.1 }}
@@ -264,7 +264,7 @@ export function UserProfile() {
                                                     whileHover={{ x: 5 }}
                                                 >
                                                     <Image
-                                                        src={trip.image || "/placeholder.svg?height=100&width=200"}
+                                                        src={trip.image || "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=200&q=80"}
                                                         alt={trip.destination}
                                                         className="w-16 h-16 object-cover rounded-md mr-4"
                                                         height={64}

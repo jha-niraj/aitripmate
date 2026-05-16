@@ -37,6 +37,8 @@ export async function GET(request: NextRequest) {
 				reviewsPosted: true,
 				photosUploaded: true,
 				createdAt: true,
+				emergencyContactName: true,
+				emergencyContactPhone: true,
 			},
 		});
 
