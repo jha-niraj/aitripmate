@@ -35,6 +35,11 @@ export async function GET(request: NextRequest) {
 				image: true,
 				days: true,
 				itinerary: true,
+				confirmed: true,
+				travelType: true,
+				budget: true,
+				interests: true,
+				createdAt: true,
 			},
 		});
 
@@ -56,7 +61,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		const body = await request.json();
-		const { userId, destination, date, image } = body;
+		const { userId, destination, date, image, days, budget, travelType, interests } = body;
 
 		const user = await prisma.user.findUnique({
 			where: { id: userId },
@@ -71,8 +76,12 @@ export async function POST(request: NextRequest) {
 			data: {
 				destination,
 				date: new Date(date),
-				image,
+				image: image || null,
 				userId,
+				days: days ? Number(days) : null,
+				budget: budget || null,
+				travelType: travelType || null,
+				interests: interests || [],
 			},
 		});
 
@@ -84,7 +93,7 @@ export async function POST(request: NextRequest) {
 			},
 		});
 
-		return NextResponse.json({ trip });
+		return NextResponse.json({ trip }, { status: 201 });
 	} catch (err) {
 		const error = err as Error;
 		console.log('Error adding user trip:', error);
