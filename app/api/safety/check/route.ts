@@ -3,15 +3,27 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
+export const maxDuration = 30;
+
 export async function POST(request: NextRequest) {
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     try {
         const session = await auth();
         if (!session?.user?.id) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { destination, destinationType, tripId } = await request.json();
+        if (!process.env.OPENAI_API_KEY) {
+            return NextResponse.json({ error: "AI service not configured" }, { status: 500 });
+        }
+
+        let body: { destination?: string; destinationType?: string; tripId?: string };
+        try {
+            body = await request.json();
+        } catch {
+            return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+        }
+
+        const { destination, destinationType, tripId } = body;
 
         if (!destination) {
             return NextResponse.json({ error: "Destination is required" }, { status: 400 });
@@ -30,35 +42,29 @@ export async function POST(request: NextRequest) {
 
         const priorities = priorityMap[destType] || priorityMap.city;
 
-        const prompt = `You are a travel safety expert for India. Provide a realistic safety assessment for traveling to ${destination}.
+        const prompt = `Provide a travel safety assessment for ${destination}, India (destination type: ${destType}).
+Focus on these risk categories: ${priorities.join(", ")}.
 
-Destination type: ${destType}
-Key risk categories to prioritize for this destination type: ${priorities.join(", ")}
-
-Return ONLY valid JSON in this exact structure (no markdown):
+Return a JSON object with this structure:
 {
-  "riskLevel": "string (low|medium|high)",
-  "riskSummary": "string (1-2 sentences overall assessment)",
+  "riskLevel": "low|medium|high",
+  "riskSummary": "1-2 sentence overall assessment",
   "alerts": [
-    {
-      "type": "string (category name)",
-      "severity": "string (low|medium|high)",
-      "title": "string",
-      "description": "string (1-2 sentences)",
-      "icon": "string (emoji)"
-    }
+    { "type": "string", "severity": "low|medium|high", "title": "string", "description": "string", "icon": "emoji" }
   ],
   "safetyTips": ["string"],
   "bestTimeToVisit": "string",
   "localEmergencyInfo": "string"
 }
 
-Generate 3-5 realistic alerts specific to ${destination}. Be specific and practical, not generic. Base alerts on actual geographical and seasonal realities of the location.`;
+Generate 3-5 specific, practical alerts for ${destination}.`;
+
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
         const completion = await openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages: [
-                { role: "system", content: "You are a travel safety expert for India. Always respond with valid JSON only." },
+                { role: "system", content: "You are a travel safety expert for India. Respond with valid JSON only." },
                 { role: "user", content: prompt },
             ],
             temperature: 0.5,
@@ -66,24 +72,30 @@ Generate 3-5 realistic alerts specific to ${destination}. Be specific and practi
             response_format: { type: "json_object" },
         });
 
-        const responseText = completion.choices[0].message.content || "";
-        let safetyData;
+        const responseText = completion.choices[0]?.message?.content;
+        if (!responseText) {
+            return NextResponse.json({ error: "AI returned empty response. Please try again." }, { status: 500 });
+        }
+
+        let safetyData: { riskLevel?: string; [key: string]: unknown };
         try {
             safetyData = JSON.parse(responseText);
         } catch {
-            throw new Error("Failed to parse safety response. Please try again.");
+            console.error("Failed to parse safety response:", responseText.slice(0, 200));
+            return NextResponse.json({ error: "AI returned malformed data. Please try again." }, { status: 500 });
         }
 
         if (tripId) {
             await prisma.trip.update({
                 where: { id: tripId },
-                data: { riskLevel: safetyData.riskLevel, destinationType: destType },
+                data: { riskLevel: String(safetyData.riskLevel || "unknown"), destinationType: destType },
             });
         }
 
         return NextResponse.json({ safety: safetyData }, { status: 200 });
     } catch (err) {
-        const error = err as Error;
-        return NextResponse.json({ error: error.message || "Failed to check safety" }, { status: 500 });
+        console.error("Safety check error:", err);
+        const message = err instanceof Error ? err.message : "Failed to check safety";
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

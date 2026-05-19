@@ -123,11 +123,13 @@ export function AIGeneration() {
                 }),
             })
 
+            const rawText = await response.text()
             let data: { itinerary?: ItineraryData; tripId?: string; error?: string }
             try {
-                data = await response.json()
+                data = JSON.parse(rawText)
             } catch {
-                throw new Error("Server returned an unexpected response. Please try again.")
+                console.error("Non-JSON response from server:", rawText.slice(0, 300))
+                throw new Error("The server encountered an error. Please try again in a moment.")
             }
 
             if (response.status === 401) {
@@ -166,11 +168,13 @@ export function AIGeneration() {
                 }),
             })
 
+            const rawSafetyText = await response.text()
             let data: { safety?: SafetyData; error?: string }
             try {
-                data = await response.json()
+                data = JSON.parse(rawSafetyText)
             } catch {
-                throw new Error("Server returned an unexpected response. Please try again.")
+                console.error("Non-JSON safety response:", rawSafetyText.slice(0, 300))
+                throw new Error("Safety check encountered an error. Please try again.")
             }
             if (response.status === 401) { router.push("/signin"); return }
             if (!response.ok) throw new Error(data.error || "Safety check failed")
