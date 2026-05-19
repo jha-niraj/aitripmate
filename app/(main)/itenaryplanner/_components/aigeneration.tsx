@@ -123,7 +123,12 @@ export function AIGeneration() {
                 }),
             })
 
-            const data = await response.json()
+            let data: { itinerary?: ItineraryData; tripId?: string; error?: string }
+            try {
+                data = await response.json()
+            } catch {
+                throw new Error("Server returned an unexpected response. Please try again.")
+            }
 
             if (response.status === 401) {
                 toast.error("Please sign in to generate an itinerary")
@@ -135,8 +140,8 @@ export function AIGeneration() {
                 throw new Error(data.error || "Failed to generate itinerary")
             }
 
-            setGeneratedItinerary(data.itinerary)
-            setTripId(data.tripId)
+            setGeneratedItinerary(data.itinerary ?? null)
+            setTripId(data.tripId ?? null)
             toast.success("Itinerary generated successfully!")
         } catch (err) {
             const error = err as Error
@@ -161,11 +166,16 @@ export function AIGeneration() {
                 }),
             })
 
-            const data = await response.json()
+            let data: { safety?: SafetyData; error?: string }
+            try {
+                data = await response.json()
+            } catch {
+                throw new Error("Server returned an unexpected response. Please try again.")
+            }
             if (response.status === 401) { router.push("/signin"); return }
             if (!response.ok) throw new Error(data.error || "Safety check failed")
 
-            setSafetyData(data.safety)
+            setSafetyData(data.safety ?? null)
             setShowSafety(true)
         } catch (err) {
             const error = err as Error

@@ -56,10 +56,14 @@ Return ONLY valid JSON in this exact structure (no markdown):
 Generate 3-5 realistic alerts specific to ${destination}. Be specific and practical, not generic. Base alerts on actual geographical and seasonal realities of the location.`;
 
         const completion = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: prompt }],
+            model: "gpt-4o-mini",
+            messages: [
+                { role: "system", content: "You are a travel safety expert for India. Always respond with valid JSON only." },
+                { role: "user", content: prompt },
+            ],
             temperature: 0.5,
-            max_tokens: 1500,
+            max_tokens: 2000,
+            response_format: { type: "json_object" },
         });
 
         const responseText = completion.choices[0].message.content || "";
@@ -67,12 +71,7 @@ Generate 3-5 realistic alerts specific to ${destination}. Be specific and practi
         try {
             safetyData = JSON.parse(responseText);
         } catch {
-            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                safetyData = JSON.parse(jsonMatch[0]);
-            } else {
-                throw new Error("Failed to parse safety response");
-            }
+            throw new Error("Failed to parse safety response. Please try again.");
         }
 
         if (tripId) {

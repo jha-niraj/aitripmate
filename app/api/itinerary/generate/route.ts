@@ -67,11 +67,21 @@ Return ONLY valid JSON in this exact structure (no markdown, no extra text):
   }
 }`;
 
+        const numDays = Number(days);
+        const maxTokens = Math.min(16000, numDays * 1200 + 2500);
+
         const completion = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: prompt }],
+            model: "gpt-4o-mini",
+            messages: [
+                {
+                    role: "system",
+                    content: `You are an expert Indian travel planner. Always respond with valid JSON only. You MUST generate exactly ${numDays} days in the "days" array — no more, no fewer.`,
+                },
+                { role: "user", content: prompt },
+            ],
             temperature: 0.7,
-            max_tokens: 4000,
+            max_tokens: maxTokens,
+            response_format: { type: "json_object" },
         });
 
         const responseText = completion.choices[0].message.content || "";
@@ -79,12 +89,11 @@ Return ONLY valid JSON in this exact structure (no markdown, no extra text):
         try {
             itineraryData = JSON.parse(responseText);
         } catch {
-            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                itineraryData = JSON.parse(jsonMatch[0]);
-            } else {
-                throw new Error("Failed to parse AI response");
-            }
+            throw new Error("AI returned malformed JSON. Please try again.");
+        }
+
+        if (!Array.isArray(itineraryData.days) || itineraryData.days.length < numDays) {
+            throw new Error(`AI only generated ${itineraryData.days?.length ?? 0} of ${numDays} days. Please try again.`);
         }
 
         const trip = await prisma.trip.create({
